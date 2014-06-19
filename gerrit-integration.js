@@ -145,7 +145,6 @@ $(function() {
     function showChangesForCurrentIssue() {
         var issueNumber = getIssueNumber();
         var changes = getChanges(issueNumber);
-        console.log(changes); // TODO remove
         if(changes.length == 0)
             return;
         var changesNode = $('<div></div>');
@@ -193,7 +192,7 @@ $(function() {
             }
 
             function getMessageToggler() {
-                var toggleMessages = $('<a></a>').text("▼").addClass('toggle-messages');
+                var toggleMessages = $('<a></a>').text("▽").addClass('toggle-messages');
                 toggleMessages.attr('title', getText('showTrivialMessagesTooltip'));
                 toggleMessages.css({
                     'padding': '5px',
@@ -202,12 +201,12 @@ $(function() {
                 toggleMessages.click(function() {
                     var self = $(this);
                     self.parent().next('.messages').find('.trivial').toggle();
-                    if(self.text() == "▼") {
+                    if(self.text() == "▽") {
                         self.attr('title', getText('hideTrivialMessagesTooltip'));
-                        self.text("▲");
+                        self.text("△");
                     } else {
                         self.attr('title', getText('showTrivialMessagesTooltip'));
-                        self.text("▼");
+                        self.text("▽");
                     }
                 });
                 return toggleMessages;
