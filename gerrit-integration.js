@@ -145,7 +145,6 @@ $(function() {
     function showChangesForCurrentIssue() {
         var issueNumber = getIssueNumber();
         var changes = getChanges(issueNumber);
-        console.log(changes); // TODO remove
         if(changes.length == 0)
             return;
         var changesNode = $('<div></div>');
