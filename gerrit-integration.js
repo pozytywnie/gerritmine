@@ -51,7 +51,13 @@ $(function() {
         'default': 'blue'
     };
 
-    if(isIssueDetailsPagePresent()) {
+    if(isBacklogPagePresent()) {
+        if(needsUpdate()) {
+            updateChanges(showChangesInformationOnBacklog);
+        } else {
+            showChangesInformationOnBacklog();
+        }
+    } else if(isIssueDetailsPagePresent()) {
         if(needsUpdate()) {
             updateChanges(showChangesForCurrentIssue);
         } else {
@@ -62,6 +68,29 @@ $(function() {
             updateChanges(showChangesInformationOnIssueList);
         } else {
             showChangesInformationOnIssueList();
+        }
+    }
+
+    function isBacklogPagePresent() {
+        return $('body').hasClass('controller-rb_master_backlogs');
+    }
+
+    function showChangesInformationOnBacklog() {
+        var rowSelector = '#stories-for-product-backlog li';
+        function getIssueNumber(row) {
+            return row.find('.id.story_field div.t a').text();
+        }
+        function getStatusNode(row) {
+            return row.find('.status_id.story_field div.t');
+        }
+        widenStatusColumn();
+        _showChangesInformationOnIssueList(rowSelector, getIssueNumber, getStatusNode);
+
+        function widenStatusColumn() {
+            $('.status_id.editable.story_field').css({
+                'padding-left': 0,
+                'width': '76px'
+            });
         }
     }
 
@@ -368,17 +397,29 @@ $(function() {
     }
 
     function showChangesInformationOnIssueList() {
+        var rowSelector = 'table.issues tr';
+        function getIssueNumber(row) {
+            return row.find('td.id a').text();
+        }
+        function getStatusNode(row) {
+            return row.find('td.status');
+        }
+        _showChangesInformationOnIssueList(rowSelector, getIssueNumber, getStatusNode);
+    }
+
+    function _showChangesInformationOnIssueList(rowSelector, getIssueNumber, getStatusNode) {
         var data = getData();
-        $('table.issues tr').each(function() {
-            var issueNumber = $(this).find('td.id a').text();
+        $(rowSelector).each(function() {
+            var self = $(this);
+            var issueNumber = getIssueNumber(self);
             var changes = data[issueNumber] || [];
-            addChangesCounters(this);
-            displayFixOrMergeStatuses(this);
+            addChangesCounters(self);
+            displayFixOrMergeStatuses(self);
 
             function addChangesCounters(row) {
                 if(changes.length > 0) {
-                    var subjectAnchor = $(row).find('td.status');
-                    subjectAnchor.text('(' + changes.length.toString() + ') ' + subjectAnchor.text());
+                    var statusNode = getStatusNode(row);
+                    statusNode.text('(' + changes.length.toString() + ') ' + statusNode.text());
                 }
             }
 
