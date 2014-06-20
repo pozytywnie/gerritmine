@@ -144,6 +144,8 @@ $(function() {
 
     function showChangesForCurrentIssue() {
         var issueNumber = getIssueNumber();
+        if(typeof issueNumber == 'undefined')
+            return;
         var changes = getChanges(issueNumber);
         if(changes.length == 0)
             return;
@@ -155,7 +157,11 @@ $(function() {
 
         function getIssueNumber() {
             var issueTypeAndNumber = $('#content>h2').text();
-            return RegExp('[\\d]+').exec(issueTypeAndNumber)[0];
+            var matches = RegExp('[\\d]+').exec(issueTypeAndNumber)
+            if(matches && matches.length > 0)
+                return matches[0];
+            else
+                return undefined;
         }
 
         function addTitle(parentNode) {
@@ -246,6 +252,8 @@ $(function() {
                 verified = '✓';
             else if(verified == -1)
                 verified = '✗';
+            else
+                verified = '0';
             return codeReview + verified;
         }
 
@@ -375,6 +383,7 @@ $(function() {
             }
 
             function displayFixOrMergeStatuses(row) {
+                var color;
                 var toFix = false;
                 var toMerge = false;
                 for(var i = 0; i < changes.length; i++) {
@@ -382,8 +391,13 @@ $(function() {
                     toFix = toFix || needsFix(change);
                     toMerge = toMerge || needsMerge(change);
                 }
-                if(changes.length > 0)
-                    $(row).find('td.status').css('color', getChangeColor(change));
+                if(toFix)
+                    var color = STATUS_COLORS['toFix'];
+                else if(toMerge)
+                    var color = STATUS_COLORS['toMerge'];
+                else
+                    var color = STATUS_COLORS['default']
+                $(row).find('td.status').css('color', color);
             }
         });
     }
