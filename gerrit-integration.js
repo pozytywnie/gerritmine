@@ -246,6 +246,8 @@ $(function() {
                 verified = '✓';
             else if(verified == -1)
                 verified = '✗';
+            else
+                verified = '0';
             return codeReview + verified;
         }
 
