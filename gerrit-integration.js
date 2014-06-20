@@ -200,6 +200,7 @@ $(function() {
         }
 
         function addChanges(changes) {
+            changes = sortEldestFirst(changes);
             for(var i = 0; i < changes.length; i++) {
                 var change = changes[i];
                 var changeLink = getChangeLink(change);
@@ -217,6 +218,12 @@ $(function() {
                     var list = createMessagesList(change, messages, lastRevisionNumber);
                     changesNode.append(list);
                 }
+            }
+
+            function sortEldestFirst(changes) {
+                return changes.sort(function(a, b) {
+                    return a._number - b._number;
+                });
             }
 
             function hasAnyTrivial(messages) {
