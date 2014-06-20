@@ -144,6 +144,8 @@ $(function() {
 
     function showChangesForCurrentIssue() {
         var issueNumber = getIssueNumber();
+        if(typeof issueNumber == 'undefined')
+            return;
         var changes = getChanges(issueNumber);
         if(changes.length == 0)
             return;
@@ -155,7 +157,11 @@ $(function() {
 
         function getIssueNumber() {
             var issueTypeAndNumber = $('#content>h2').text();
-            return RegExp('[\\d]+').exec(issueTypeAndNumber)[0];
+            var matches = RegExp('[\\d]+').exec(issueTypeAndNumber)
+            if(matches && matches.length > 0)
+                return matches[0];
+            else
+                return undefined;
         }
 
         function addTitle(parentNode) {
