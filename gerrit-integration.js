@@ -391,13 +391,14 @@ $(function() {
                     toFix = toFix || needsFix(change);
                     toMerge = toMerge || needsMerge(change);
                 }
+                var color;
                 if(toFix)
-                    var color = STATUS_COLORS['toFix'];
+                    color = STATUS_COLORS['toFix'];
                 else if(toMerge)
-                    var color = STATUS_COLORS['toMerge'];
-                else
-                    var color = STATUS_COLORS['default']
-                $(row).find('td.status').css('color', color);
+                    color = STATUS_COLORS['toMerge'];
+                else if(changes.length > 0)
+                    color = STATUS_COLORS['default']
+                getStatusNode(row).css('color', color);
             }
         });
     }
