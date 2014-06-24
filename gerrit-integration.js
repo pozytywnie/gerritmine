@@ -208,6 +208,9 @@ $(function() {
                 paragraph.append(changeLink);
                 changesNode.append(paragraph);
                 var lastRevisionNumber = change.revisions[change.current_revision]._number;
+                var isDraft = change.revisions[change.current_revision].draft;
+                if(isDraft)
+                    markAsDraft(paragraph);
                 var messages = getMessagesForRevision(change.messages, lastRevisionNumber);
                 if(messages.length > 0) {
                     messages = getDecompositedMessages(messages, lastRevisionNumber);
@@ -224,6 +227,11 @@ $(function() {
                 return changes.sort(function(a, b) {
                     return a._number - b._number;
                 });
+            }
+
+            function markAsDraft(entryNode) {
+                var link = entryNode.find('a');
+                link.text(link.text() + ' [DRAFT]');
             }
 
             function hasAnyTrivial(messages) {
