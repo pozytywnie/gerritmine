@@ -166,7 +166,7 @@ $(function() {
 
         function informAboutEmptyResponse() {
             var info = $('<li><a href="' + GERRIT_SERVER + '" style="color: #ED8F64;"></a></li>');
-            info.find('a').text(getText(needsLoginLink));
+            info.find('a').text(getText('needsLoginLink'));
             $('#top-menu>ul').append(info);
         }
     }
