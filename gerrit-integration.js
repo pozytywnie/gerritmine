@@ -517,23 +517,23 @@ $(function() {
     }
 
     function getCodeReviewState(change) {
-        if(change.labels['Code-Review'].approved)
+        if(change.labels['Code-Review'].rejected)
+            return -2;
+        else if(change.labels['Code-Review'].approved)
             return 2;
-        else if(change.labels['Code-Review'].recommended)
-            return 1;
         else if(change.labels['Code-Review'].disliked)
             return -1;
-        else if(change.labels['Code-Review'].rejected)
-            return -2;
+        else if(change.labels['Code-Review'].recommended)
+            return 1;
         else
             return 0;
     }
 
     function getVerifiedState(change) {
-        if(change.labels['Verified'].approved)
-            return 1;
-        else if(change.labels['Verified'].rejected)
+        if(change.labels['Verified'].rejected)
             return -1;
+        else if(change.labels['Verified'].approved)
+            return 1;
         else
             return 0;
     }
