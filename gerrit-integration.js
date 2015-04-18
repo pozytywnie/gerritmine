@@ -51,7 +51,13 @@ $(function() {
         'default': 'blue'
     };
 
-    if(isIssueDetailsPagePresent()) {
+    if(isBacklogPagePresent()) {
+        if(needsUpdate()) {
+            updateChanges(showChangesInformationOnBacklog);
+        } else {
+            showChangesInformationOnBacklog();
+        }
+    } else if(isIssueDetailsPagePresent()) {
         if(needsUpdate()) {
             updateChanges(showChangesForCurrentIssue);
         } else {
@@ -62,6 +68,29 @@ $(function() {
             updateChanges(showChangesInformationOnIssueList);
         } else {
             showChangesInformationOnIssueList();
+        }
+    }
+
+    function isBacklogPagePresent() {
+        return $('body').hasClass('controller-rb_master_backlogs');
+    }
+
+    function showChangesInformationOnBacklog() {
+        var rowSelector = '#stories-for-product-backlog li';
+        function getIssueNumber(row) {
+            return row.find('.id.story_field div.t a').text();
+        }
+        function getStatusNode(row) {
+            return row.find('.status_id.story_field div.t');
+        }
+        widenStatusColumn();
+        _showChangesInformationOnIssueList(rowSelector, getIssueNumber, getStatusNode);
+
+        function widenStatusColumn() {
+            $('.status_id.editable.story_field').css({
+                'padding-left': 0,
+                'width': '76px'
+            });
         }
     }
 
@@ -137,15 +166,16 @@ $(function() {
 
         function informAboutEmptyResponse() {
             var info = $('<li><a href="' + GERRIT_SERVER + '" style="color: #ED8F64;"></a></li>');
-            info.find('a').text(getText(needsLoginLink));
+            info.find('a').text(getText('needsLoginLink'));
             $('#top-menu>ul').append(info);
         }
     }
 
     function showChangesForCurrentIssue() {
         var issueNumber = getIssueNumber();
+        if(typeof issueNumber == 'undefined')
+            return;
         var changes = getChanges(issueNumber);
-        console.log(changes); // TODO remove
         if(changes.length == 0)
             return;
         var changesNode = $('<div></div>');
@@ -156,7 +186,11 @@ $(function() {
 
         function getIssueNumber() {
             var issueTypeAndNumber = $('#content>h2').text();
-            return RegExp('[\\d]+').exec(issueTypeAndNumber)[0];
+            var matches = RegExp('[\\d]+').exec(issueTypeAndNumber)
+            if(matches && matches.length > 0)
+                return matches[0];
+            else
+                return undefined;
         }
 
         function addTitle(parentNode) {
@@ -166,6 +200,7 @@ $(function() {
         }
 
         function addChanges(changes) {
+            changes = sortEldestFirst(changes);
             for(var i = 0; i < changes.length; i++) {
                 var change = changes[i];
                 var changeLink = getChangeLink(change);
@@ -173,6 +208,9 @@ $(function() {
                 paragraph.append(changeLink);
                 changesNode.append(paragraph);
                 var lastRevisionNumber = change.revisions[change.current_revision]._number;
+                var isDraft = change.revisions[change.current_revision].draft;
+                if(isDraft)
+                    markAsDraft(paragraph);
                 var messages = getMessagesForRevision(change.messages, lastRevisionNumber);
                 if(messages.length > 0) {
                     messages = getDecompositedMessages(messages, lastRevisionNumber);
@@ -185,6 +223,17 @@ $(function() {
                 }
             }
 
+            function sortEldestFirst(changes) {
+                return changes.sort(function(a, b) {
+                    return a._number - b._number;
+                });
+            }
+
+            function markAsDraft(entryNode) {
+                var link = entryNode.find('a');
+                link.text(link.text() + ' [DRAFT]');
+            }
+
             function hasAnyTrivial(messages) {
                 var trivial = messages.filter(function(message) {
                     return message.trivial;
@@ -193,7 +242,7 @@ $(function() {
             }
 
             function getMessageToggler() {
-                var toggleMessages = $('<a></a>').text("▼").addClass('toggle-messages');
+                var toggleMessages = $('<a></a>').text("▽").addClass('toggle-messages');
                 toggleMessages.attr('title', getText('showTrivialMessagesTooltip'));
                 toggleMessages.css({
                     'padding': '5px',
@@ -202,12 +251,12 @@ $(function() {
                 toggleMessages.click(function() {
                     var self = $(this);
                     self.parent().next('.messages').find('.trivial').toggle();
-                    if(self.text() == "▼") {
+                    if(self.text() == "▽") {
                         self.attr('title', getText('hideTrivialMessagesTooltip'));
-                        self.text("▲");
+                        self.text("△");
                     } else {
                         self.attr('title', getText('showTrivialMessagesTooltip'));
-                        self.text("▼");
+                        self.text("▽");
                     }
                 });
                 return toggleMessages;
@@ -247,6 +296,8 @@ $(function() {
                 verified = '✓';
             else if(verified == -1)
                 verified = '✗';
+            else
+                verified = '0';
             return codeReview + verified;
         }
 
@@ -361,21 +412,34 @@ $(function() {
     }
 
     function showChangesInformationOnIssueList() {
+        var rowSelector = 'table.issues tr';
+        function getIssueNumber(row) {
+            return row.find('td.id a').text();
+        }
+        function getStatusNode(row) {
+            return row.find('td.status');
+        }
+        _showChangesInformationOnIssueList(rowSelector, getIssueNumber, getStatusNode);
+    }
+
+    function _showChangesInformationOnIssueList(rowSelector, getIssueNumber, getStatusNode) {
         var data = getData();
-        $('table.issues tr').each(function() {
-            var issueNumber = $(this).find('td.id a').text();
+        $(rowSelector).each(function() {
+            var self = $(this);
+            var issueNumber = getIssueNumber(self);
             var changes = data[issueNumber] || [];
-            addChangesCounters(this);
-            displayFixOrMergeStatuses(this);
+            addChangesCounters(self);
+            displayFixOrMergeStatuses(self);
 
             function addChangesCounters(row) {
                 if(changes.length > 0) {
-                    var subjectAnchor = $(row).find('td.status');
-                    subjectAnchor.text('(' + changes.length.toString() + ') ' + subjectAnchor.text());
+                    var statusNode = getStatusNode(row);
+                    statusNode.text('(' + changes.length.toString() + ') ' + statusNode.text());
                 }
             }
 
             function displayFixOrMergeStatuses(row) {
+                var color;
                 var toFix = false;
                 var toMerge = false;
                 for(var i = 0; i < changes.length; i++) {
@@ -383,8 +447,14 @@ $(function() {
                     toFix = toFix || needsFix(change);
                     toMerge = toMerge || needsMerge(change);
                 }
-                if(changes.length > 0)
-                    $(row).find('td.status').css('color', getChangeColor(change));
+                var color;
+                if(toFix)
+                    color = STATUS_COLORS['toFix'];
+                else if(toMerge)
+                    color = STATUS_COLORS['toMerge'];
+                else if(changes.length > 0)
+                    color = STATUS_COLORS['default']
+                getStatusNode(row).css('color', color);
             }
         });
     }
@@ -447,23 +517,23 @@ $(function() {
     }
 
     function getCodeReviewState(change) {
-        if(change.labels['Code-Review'].approved)
+        if(change.labels['Code-Review'].rejected)
+            return -2;
+        else if(change.labels['Code-Review'].approved)
             return 2;
-        else if(change.labels['Code-Review'].recommended)
-            return 1;
         else if(change.labels['Code-Review'].disliked)
             return -1;
-        else if(change.labels['Code-Review'].rejected)
-            return -2;
+        else if(change.labels['Code-Review'].recommended)
+            return 1;
         else
             return 0;
     }
 
     function getVerifiedState(change) {
-        if(change.labels['Verified'].approved)
-            return 1;
-        else if(change.labels['Verified'].rejected)
+        if(change.labels['Verified'].rejected)
             return -1;
+        else if(change.labels['Verified'].approved)
+            return 1;
         else
             return 0;
     }
