@@ -21,10 +21,11 @@ THE SOFTWARE.
 */
 
 $(function() {
-    var GERRIT_SERVER = GERRIT_SERVER || 'http://review.socialwifi.com';
+    var parameters = getParameters();
+    var GERRIT_SERVER = parameters.gerrit_server;
     var STORAGE_KEY = 'gerrit_integration';
     var SECOND = 1000;
-    var UPDATE_AFTER = UPDATE_AFTER || 10 * SECOND;
+    var UPDATE_AFTER = parameters.update_interval || 10 * SECOND;
     var EMPTY_RESPONSE_CONTENT_LENGTH = 8;
     var LINK_GERRIT_LOGIN_ON_ZERO_CHANGES = true;
     var JENKINS_USERNAME = 'Jenkins';
@@ -69,6 +70,15 @@ $(function() {
         } else {
             showChangesInformationOnIssueList();
         }
+    }
+
+    function getParameters() {
+        // Source: http://feather.elektrum.org/book/src.html
+        var scripts = document.getElementsByTagName('script');
+        var currentlyRunningIndex = scripts.length - 1;
+        var thisScriptNode = scripts[currentlyRunningIndex];
+        var queryString = thisScriptNode.src.replace(/^[^\?]+\??/,'');
+        return $.deparam(queryString);
     }
 
     function isBacklogPagePresent() {
