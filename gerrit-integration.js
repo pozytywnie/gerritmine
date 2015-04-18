@@ -196,7 +196,7 @@ $(function() {
 
         function getIssueNumber() {
             var issueTypeAndNumber = $('#content>h2').text();
-            var matches = RegExp('[\\d]+').exec(issueTypeAndNumber)
+            var matches = RegExp('[\\d]+').exec(issueTypeAndNumber);
             if(matches && matches.length > 0)
                 return matches[0];
             else
@@ -276,8 +276,7 @@ $(function() {
         function getChangeLink(change) {
             var node = createChangeLink(change);
             node.css('color', getChangeColor(change, false));
-            node.text(getChangeLinkText(change));
-            return node;
+            return node.text(getChangeLinkText(change));
 
             function getChangeLinkText(change) {
                 return getReviewText(change) + " " + drySubject(change.subject);
@@ -324,7 +323,6 @@ $(function() {
 
         function getDecompositedMessages(rawMessages, lastRevisionNumber) {
             var result = [];
-            var trivials = 0;
             for(var i = 0; i < rawMessages.length; i++) {
                 var message = rawMessages[i];
                 var trivial = isTrivial(message);
@@ -340,7 +338,7 @@ $(function() {
                     'coverMessage': coverMessage,
                     'messages': message.messages,
                     'preamble': preamble,
-                    'trivial': trivial,
+                    'trivial': trivial
                 });
             }
             return result;
@@ -457,13 +455,12 @@ $(function() {
                     toFix = toFix || needsFix(change);
                     toMerge = toMerge || needsMerge(change);
                 }
-                var color;
                 if(toFix)
                     color = STATUS_COLORS['toFix'];
                 else if(toMerge)
                     color = STATUS_COLORS['toMerge'];
                 else if(changes.length > 0)
-                    color = STATUS_COLORS['default']
+                    color = STATUS_COLORS['default'];
                 getStatusNode(row).css('color', color);
             }
         });
