@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 
 $(function() {
-    var GERRIT_SERVER = GERRIT_SERVER || 'http://review.pozytywnie.pl';
+    var GERRIT_SERVER = GERRIT_SERVER || 'http://review.socialwifi.com';
     var STORAGE_KEY = 'gerrit_integration';
     var SECOND = 1000;
     var UPDATE_AFTER = UPDATE_AFTER || 10 * SECOND;
@@ -32,14 +32,14 @@ $(function() {
     var TRANSLATIONS = {
         PL: {
             commentLink: "Skomentuj",
-            needsLoginLink: "Zaloguj się do review.pozytywnie.pl, aby wyświetlały się statusy otwartych zmian przy zagadnieniach.",
+            needsLoginLink: "Zaloguj się do review.socialwifi.com, aby wyświetlały się statusy otwartych zmian przy zagadnieniach.",
             openChangesTitle: "Otwarte zmiany",
             hideTrivialMessagesTooltip: "Ukryj trywialne wiadomości.",
             showTrivialMessagesTooltip: "Pokaż trywialne wiadomości."
         },
         EN: {
             commentLink: "Comment",
-            needsLoginLink: "Log in to review.pozytywnie.pl to see open changes statuses by issues.",
+            needsLoginLink: "Log in to review.socialwifi.com to see open changes statuses by issues.",
             openChangesTitle: "Open changes",
             hideTrivialMessagesTooltip: "Hide trivial messages.",
             showTrivialMessagesTooltip: "Show trivial messages."
