@@ -45,14 +45,14 @@ $(function() {
     var TRANSLATIONS = {
         PL: {
             commentLink: "Skomentuj",
-            needsLoginLink: "Zaloguj się do review.socialwifi.com, aby wyświetlały się statusy otwartych zmian przy zagadnieniach.",
+            needsLoginLink: "Zaloguj się do Gerrita, aby wyświetlały się statusy otwartych zmian przy zagadnieniach.",
             openChangesTitle: "Otwarte zmiany",
             hideTrivialMessagesTooltip: "Ukryj trywialne wiadomości.",
             showTrivialMessagesTooltip: "Pokaż trywialne wiadomości."
         },
         EN: {
             commentLink: "Comment",
-            needsLoginLink: "Log in to review.socialwifi.com to see open changes statuses by issues.",
+            needsLoginLink: "Log in to Gerrit to see open changes statuses by issues.",
             openChangesTitle: "Open changes",
             hideTrivialMessagesTooltip: "Hide trivial messages.",
             showTrivialMessagesTooltip: "Show trivial messages."
