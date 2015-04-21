@@ -20,12 +20,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+var GerritMine = GerritMine || {};
+
+GerritMine.getParameters = function() {
+    // Source: http://feather.elektrum.org/book/src.html
+    var scripts = document.getElementsByTagName('script');
+    var currentlyRunningIndex = scripts.length - 1;
+    var thisScriptNode = scripts[currentlyRunningIndex];
+    var queryString = thisScriptNode.src.replace(/^[^\?]+\??/,'');
+    return $.deparam(queryString);
+};
+
+GerritMine.parameters = GerritMine.getParameters();
+
 $(function() {
-    var parameters = getParameters();
-    var GERRIT_SERVER = parameters.gerrit_server;
+    var GERRIT_SERVER = GerritMine.parameters.gerrit_server;
     var STORAGE_KEY = 'gerrit_integration';
     var SECOND = 1000;
-    var UPDATE_AFTER = parameters.update_interval || 10 * SECOND;
+    var UPDATE_AFTER = GerritMine.parameters.update_interval || 10 * SECOND;
     var EMPTY_RESPONSE_CONTENT_LENGTH = 8;
     var LINK_GERRIT_LOGIN_ON_ZERO_CHANGES = true;
     var JENKINS_USERNAME = 'Jenkins';
@@ -70,15 +82,6 @@ $(function() {
         } else {
             showChangesInformationOnIssueList();
         }
-    }
-
-    function getParameters() {
-        // Source: http://feather.elektrum.org/book/src.html
-        var scripts = document.getElementsByTagName('script');
-        var currentlyRunningIndex = scripts.length - 1;
-        var thisScriptNode = scripts[currentlyRunningIndex];
-        var queryString = thisScriptNode.src.replace(/^[^\?]+\??/,'');
-        return $.deparam(queryString);
     }
 
     function isBacklogPagePresent() {
