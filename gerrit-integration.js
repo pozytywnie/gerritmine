@@ -20,11 +20,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+var GerritMine = GerritMine || {};
+
+GerritMine.getParameters = function() {
+    // Source: http://feather.elektrum.org/book/src.html
+    var scripts = document.getElementsByTagName('script');
+    var currentlyRunningIndex = scripts.length - 1;
+    var thisScriptNode = scripts[currentlyRunningIndex];
+    var queryString = thisScriptNode.src.replace(/^[^\?]+\??/,'');
+    return $.deparam(queryString);
+};
+
+GerritMine.parameters = GerritMine.getParameters();
+
 $(function() {
-    var GERRIT_SERVER = GERRIT_SERVER || 'http://review.pozytywnie.pl';
+    var GERRIT_SERVER = GerritMine.parameters.gerrit_server;
     var STORAGE_KEY = 'gerrit_integration';
     var SECOND = 1000;
-    var UPDATE_AFTER = UPDATE_AFTER || 10 * SECOND;
+    var UPDATE_AFTER = GerritMine.parameters.update_interval || 10 * SECOND;
     var EMPTY_RESPONSE_CONTENT_LENGTH = 8;
     var LINK_GERRIT_LOGIN_ON_ZERO_CHANGES = true;
     var JENKINS_USERNAME = 'Jenkins';
@@ -32,14 +45,14 @@ $(function() {
     var TRANSLATIONS = {
         PL: {
             commentLink: "Skomentuj",
-            needsLoginLink: "Zaloguj się do review.pozytywnie.pl, aby wyświetlały się statusy otwartych zmian przy zagadnieniach.",
+            needsLoginLink: "Zaloguj się do Gerrita, aby wyświetlały się statusy otwartych zmian przy zagadnieniach.",
             openChangesTitle: "Otwarte zmiany",
             hideTrivialMessagesTooltip: "Ukryj trywialne wiadomości.",
             showTrivialMessagesTooltip: "Pokaż trywialne wiadomości."
         },
         EN: {
             commentLink: "Comment",
-            needsLoginLink: "Log in to review.pozytywnie.pl to see open changes statuses by issues.",
+            needsLoginLink: "Log in to Gerrit to see open changes statuses by issues.",
             openChangesTitle: "Open changes",
             hideTrivialMessagesTooltip: "Hide trivial messages.",
             showTrivialMessagesTooltip: "Show trivial messages."
@@ -186,7 +199,7 @@ $(function() {
 
         function getIssueNumber() {
             var issueTypeAndNumber = $('#content>h2').text();
-            var matches = RegExp('[\\d]+').exec(issueTypeAndNumber)
+            var matches = RegExp('[\\d]+').exec(issueTypeAndNumber);
             if(matches && matches.length > 0)
                 return matches[0];
             else
@@ -266,8 +279,7 @@ $(function() {
         function getChangeLink(change) {
             var node = createChangeLink(change);
             node.css('color', getChangeColor(change, false));
-            node.text(getChangeLinkText(change));
-            return node;
+            return node.text(getChangeLinkText(change));
 
             function getChangeLinkText(change) {
                 return getReviewText(change) + " " + drySubject(change.subject);
@@ -314,7 +326,6 @@ $(function() {
 
         function getDecompositedMessages(rawMessages, lastRevisionNumber) {
             var result = [];
-            var trivials = 0;
             for(var i = 0; i < rawMessages.length; i++) {
                 var message = rawMessages[i];
                 var trivial = isTrivial(message);
@@ -330,7 +341,7 @@ $(function() {
                     'coverMessage': coverMessage,
                     'messages': message.messages,
                     'preamble': preamble,
-                    'trivial': trivial,
+                    'trivial': trivial
                 });
             }
             return result;
@@ -447,13 +458,12 @@ $(function() {
                     toFix = toFix || needsFix(change);
                     toMerge = toMerge || needsMerge(change);
                 }
-                var color;
                 if(toFix)
                     color = STATUS_COLORS['toFix'];
                 else if(toMerge)
                     color = STATUS_COLORS['toMerge'];
                 else if(changes.length > 0)
-                    color = STATUS_COLORS['default']
+                    color = STATUS_COLORS['default'];
                 getStatusNode(row).css('color', color);
             }
         });
