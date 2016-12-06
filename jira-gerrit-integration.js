@@ -168,7 +168,7 @@ THE SOFTWARE.
           var changes = getChanges(issueNumber);
           if(changes.length == 0)
               return;
-          var changesNode = $('<div></div>');
+          var changesNode = $('<div class="mod-content"></div>');
           addTitle(changesNode);
           addChanges(changes);
           changesNode.append($('<hr>'));
